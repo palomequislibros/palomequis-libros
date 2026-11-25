@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A estudiar sin sufrir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Comic+Relief:wght@400;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Mundo visual: el librito. Papel crema, tinta azul noche, un color por técnica. Layout: una columna de celular con barra inferior. */
+:root{
+  --ink:#1d2540; --paper:#fffaf0; --yellow:#FFC93C; --pink:#F2557E; --teal:#14B8A6; --red:#E5484D;
+  --violet:#7C5CFA; --blue:#2F8BE6; --green:#38B24D; --soft:#fff;
+  --display:'Archivo Black','Arial Black',sans-serif; --body:'Poppins',system-ui,sans-serif; --hand:'Comic Relief','Comic Sans MS',cursive;
+  color-scheme: light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--ink);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+body{min-height:100%;display:flex;justify-content:center}
+.app{width:100%;max-width:480px;min-height:100vh;background:var(--paper);position:relative;padding:0 0 calc(86px + env(safe-area-inset-bottom));
+  background-image:radial-gradient(circle,rgba(29,37,64,.10) 1px,transparent 1.4px);background-size:20px 20px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:1.05;text-wrap:balance}
+h2{font-size:26px} h3{font-size:18px}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 18px 12px;background:var(--ink);color:#fff}
+.top .t{font-family:var(--display);font-size:15px;line-height:1.05}
+.top .t small{display:block;font-family:var(--hand);font-size:11px;color:var(--yellow);margin-top:3px}
+.view{display:none;padding:20px 18px 8px;animation:in .25s ease-out}
+.view.on{display:block}
+@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view{animation:none}*{transition:none!important}}
+.card{background:var(--soft);border:2px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:16px}
+.chip{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#fff;background:var(--c,var(--ink));border:2px solid var(--ink);border-radius:20px;padding:4px 12px}
+.btn{font-family:var(--display);font-size:15px;background:var(--c,var(--yellow));color:var(--ink);border:2px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:12px 20px;min-height:48px;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.ghost{background:#fff}
+.btn.light{color:#fff}
+.row{display:flex;gap:12px;align-items:center}
+.center{text-align:center}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* inicio */
+.hero{display:flex;align-items:flex-end;gap:6px}
+.bubble{background:#fff;border:2px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:14px 16px;margin-bottom:34px;flex:1}
+.bubble b{font-family:var(--display);font-weight:400;font-size:20px;display:block;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.tile{display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--c);color:#fff;border:2px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:14px;min-height:150px;transition:transform .08s,box-shadow .08s}
+.tile:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.tile h3{font-size:19px;color:#fff;text-shadow:2px 2px 0 rgba(29,37,64,.55)}
+.tile span.s{font-size:13px;line-height:1.3;font-weight:500}
+.tile.y{color:var(--ink)} .tile.y h3{color:var(--ink);text-shadow:none}
+.howto{margin-top:20px;font-size:13px}
+.howto b{font-family:var(--hand)}
+.credits{margin-top:20px;font-size:12px;opacity:.8;text-align:center}
+
+/* nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:2px solid var(--ink);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+.nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:10.5px;font-weight:600;border-radius:12px;color:#5a6280;min-height:52px}
+.nav button[aria-current="page"]{color:var(--ink);background:var(--yellow);box-shadow:inset 0 0 0 2px var(--ink)}
+.nav .ic{stroke:currentColor}
+
+/* pomodoro */
+.ringwrap{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:18px auto 14px}
+.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{stroke:rgba(29,37,64,.14)} .ring-fg{stroke:var(--red);transition:stroke-dashoffset .4s linear,stroke .3s}
+.ringc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.time{font-family:var(--display);font-size:clamp(46px,17vw,68px);font-variant-numeric:tabular-nums;line-height:1}
+.mode{font-family:var(--hand);font-weight:700;font-size:16px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:10px 4px;font-weight:600;font-size:13px;min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.toms{display:flex;gap:10px;justify-content:center;margin:6px 0 0}
+.tom{width:34px;height:34px}
+.tom .b{fill:#fff;stroke:var(--ink);stroke-width:3.5;stroke-dasharray:7 5} .tom.f .b{fill:var(--red);stroke-dasharray:0}
+.tom .l{fill:#fff;stroke:var(--ink);stroke-width:3} .tom.f .l{fill:var(--green)}
+.demo{display:flex;align-items:center;gap:10px;font-size:13px;margin-top:6px;justify-content:center}
+.demo input{width:22px;height:22px;accent-color:var(--ink)}
+
+/* quiz */
+.bar{height:12px;border:2px solid var(--ink);border-radius:10px;background:#fff;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.q{font-family:var(--display);font-size:21px;line-height:1.15;margin:14px 0 14px;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:13px 14px;font-weight:500;min-height:52px;box-shadow:3px 3px 0 var(--ink);display:flex;gap:10px;align-items:center}
+.opt .k{font-family:var(--display);width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;flex:none;font-size:13px;background:var(--paper)}
+.opt.ok{background:#CFF3D4;border-color:var(--green)} .opt.no{background:#FFD5D7;border-color:var(--red)}
+.opt[disabled]{cursor:default}
+.feed{margin-top:14px;display:flex;gap:10px;align-items:flex-start}
+.feed p{font-size:14px}.feed b{font-family:var(--display);font-weight:400;font-size:17px;display:block}
+.score{font-family:var(--display);font-size:64px;line-height:1}
+
+/* frases */
+.field{width:100%;border:2px solid var(--ink);border-radius:14px;padding:12px 14px;font:inherit;background:#fff;resize:vertical;min-height:96px;color:var(--ink)}
+label.l{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
+.pairs{display:flex;flex-wrap:wrap;gap:8px 6px;margin-top:6px}
+.pw{display:flex;flex-direction:column;align-items:center;min-width:44px}
+.pw b{font-family:var(--display);font-weight:400;font-size:30px;color:var(--violet);line-height:1}
+.pw span{font-size:11px;opacity:.7}
+.pw .w{font-weight:600;font-size:15px;margin-top:2px}
+.out{background:#E6DFFF}
+.hint{font-size:13px;opacity:.8}
+
+/* juego */
+.mcols{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.mcols .h{font-family:var(--hand);font-weight:700;font-size:13px;opacity:.8}
+.mi{display:flex;flex-direction:column;justify-content:center;text-align:left;min-height:64px;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:8px 10px;font-size:13px;line-height:1.25;box-shadow:3px 3px 0 var(--ink)}
+.mi.l{font-family:var(--display);font-size:14px}
+.mi.sel{background:var(--yellow)}
+.mi.done{background:#CFF3D4;border-color:var(--green);box-shadow:none;opacity:.85}
+.mi.bad{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.sr{position:absolute;left:-9999px}
+
+/* lucho */
+.stage{display:flex;flex-direction:column;align-items:center;gap:6px}
+.lbubble{position:relative;background:#fff;border:2px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:14px 16px;font-weight:500;min-height:92px;width:100%;font-size:16px;line-height:1.4}
+.lbubble:after{content:"";position:absolute;left:50%;bottom:-14px;width:22px;height:22px;background:#fff;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.luchowrap{margin-top:12px;transform-origin:50% 100%}
+.luchowrap.talking{animation:bob .32s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0) rotate(-1.5deg)}to{transform:translateY(-6px) rotate(1.5deg)}}
+@media (prefers-reduced-motion:reduce){.luchowrap.talking{animation:none}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chipq{background:#fff;border:2px solid var(--ink);border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;min-height:40px;box-shadow:2px 2px 0 var(--ink)}
+.ask{display:flex;gap:8px;margin-top:16px}
+.ask input{flex:1;min-width:0;border:2px solid var(--ink);border-radius:14px;padding:12px 14px;font:inherit;background:#fff;color:var(--ink)}
+.wide{grid-column:1 / -1;flex-direction:row;align-items:center;min-height:0}
+
+.back{background:none;border:0;font-weight:600;font-size:14px;margin:-6px 0 8px -6px;padding:8px 6px;color:var(--ink);min-height:40px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:14px;border:2px solid var(--yellow);font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:9;max-width:92%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.statsbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:16px}
+.statsbtn b{font-family:var(--display);font-weight:400;font-size:18px}
+.tok{display:inline-block;background:none;border:0;font:inherit;font-size:19px;line-height:1.25;padding:4px 5px;margin:1px 0;border-radius:8px;min-height:36px;color:var(--ink)}
+.tok.sel{background:#FFE066}
+.tok.hit{background:#A8EBB0;box-shadow:inset 0 0 0 2px var(--green)}
+.tok.miss{background:#D3F5F0;box-shadow:inset 0 0 0 2px var(--teal);border-style:dashed}
+.tok.extra{background:#FFD5D7;text-decoration:line-through}
+.cgrid{display:grid;gap:2px;margin:6px auto 0;width:100%;max-width:380px}
+.cc{aspect-ratio:1;position:relative}
+.cc.blk{visibility:hidden}
+.cc input{width:100%;height:100%;text-align:center;font-family:var(--display);font-size:clamp(14px,4.6vw,21px);text-transform:uppercase;border:2px solid var(--ink);border-radius:7px;padding:0;background:#fff;color:var(--ink)}
+.cc input.cur{background:#FFF1BD} .cc input.ok{background:#CFF3D4} .cc input.bad{background:#FFD5D7}
+.cc i{position:absolute;top:1px;left:3px;font-size:9px;font-style:normal;font-weight:600;pointer-events:none;z-index:1}
+.clue{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.3;margin-bottom:8px;min-height:44px}
+.clue b{font-family:var(--display);font-weight:400;margin-right:6px}
+.clue.cur{background:#FFF1BD}
+.sgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px}
+.sc{aspect-ratio:1;border:1.5px solid rgba(29,37,64,.35);border-radius:6px;background:#fff;font-family:var(--display);font-size:clamp(12px,4vw,17px);padding:0;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.sc.start{background:var(--yellow);border-color:var(--ink)}
+.sc.found{background:#A8EBB0;border-color:var(--green)}
+.sc.bad{animation:shake .35s}
+.wd{display:inline-block;font-family:var(--display);font-size:12px;background:#fff;border:2px solid var(--ink);border-radius:20px;padding:4px 10px;margin:0 6px 8px 0}
+.wd.done{text-decoration:line-through;opacity:.55;background:#CFF3D4}
+.ach{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2px solid var(--ink);border-radius:14px;background:#fff;margin-bottom:10px}
+.ach .st{width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--yellow);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--display);font-size:14px}
+.ach.lock{opacity:.5;background:rgba(255,255,255,.6)}
+.ach.lock .st{background:#ddd}
+.ach b{font-family:var(--display);font-weight:400;font-size:15px;display:block;line-height:1.1}
+.ach span{font-size:12px}
+.pcard{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.pday{flex:none;min-width:64px;text-align:center;background:var(--pink);color:#fff;border:2px solid var(--ink);border-radius:12px;padding:6px 6px;font-family:var(--display);font-size:12px;line-height:1.15}
+.pday.hoy{background:var(--ink);color:var(--yellow)}
+.pcard b{font-family:var(--display);font-weight:400;font-size:16px;display:block}
+.pcard p{font-size:13px}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <header class="top">
+    <div class="t">¡A estudiar sin sufrir!<small>Palomequis Libros · versión de celular</small></div>
+    <svg width="40" height="32" viewBox="0 0 120 94" aria-hidden="true"><path d="M8 66 Q34 55 60 66 L60 88 Q34 77 8 88 Z" fill="#FFC93C" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M112 66 Q86 55 60 66 L60 88 Q86 77 112 88 Z" fill="#FFC93C" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M48 42 L14 44 Q24 50 20 56 Q32 56 30 64 Q44 58 52 50 Z" fill="#fff"/><ellipse cx="60" cy="44" rx="19" ry="9.5" fill="#fff" transform="rotate(-14 60 44)"/><path d="M52 40 Q38 10 64 6 Q66 24 70 40 Z" fill="#fff" stroke="#FFC93C" stroke-width="2.4"/><circle cx="80" cy="33" r="6.6" fill="#fff"/><path d="M85 31.4 L95 34 L85 36.2 Z" fill="#FFC93C"/><circle cx="81.6" cy="31.6" r="1.4" fill="#1d2540"/></svg>
+  </header>
+
+  <!-- INICIO -->
+  <section class="view" id="v-inicio" aria-labelledby="h-inicio">
+    <div class="hero">
+      <div aria-hidden="true"><svg class="lucho " width="108.5" height="178" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 120 Q26 110 22 82" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="22" cy="80" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 120 Q114 110 118 82" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="118" cy="80" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>
+    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>
+    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>
+    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>
+    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>
+    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>
+    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.2" cy="93" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.2" cy="93" r="3.3" fill="#1d2540"/><path d="M57 106 Q70 128 83 106 Z" fill="#fff" stroke="#1d2540" stroke-width="2.5" stroke-linejoin="round"/></svg></div>
+      <div class="bubble"><b id="h-inicio">¡Hola! Soy Lucho.</b>Practicá las técnicas del cuadernillo, jugá y juntá estrellas.</div>
+    </div>
+    <div class="grid">
+      <button class="tile y wide" style="--c:var(--yellow)" data-go="lucho"><span aria-hidden="true"><svg class="lucho " width="40.300000000000004" height="66" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 125 Q28 132 24 150" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="150" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 125 Q116 118 120 96" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="94" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>
+    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>
+    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>
+    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>
+    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>
+    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>
+    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.2" cy="93" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.2" cy="93" r="3.3" fill="#1d2540"/><path d="M58 107 Q70 123 82 107" fill="none" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/></svg></span><span><h3>Preguntale a Lucho</h3><span class="s">Te responde con voz y mueve la boca</span></span></button>
+      <button class="tile wide" style="--c:var(--red)" data-go="practicar"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1zM14 7l3 3"/></svg><span><h3>Practicar</h3><span class="s">Pomodoro, subrayador, frases locas y plan de prueba</span></span></button>
+      <button class="tile wide" style="--c:var(--green)" data-go="juegos"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H5v-4a2 2 0 1 0 0-4V8z"/></svg><span><h3>Juegos</h3><span class="s">Quiz, unir, crucigrama y sopa de letras</span></span></button>
+    </div>
+    <button class="card statsbtn" data-go="logros" id="homeStars"></button>
+    <p class="howto card" style="margin-top:20px;padding:12px 14px"><b>Para tenerla como app:</b> en Android, abrí el menú del navegador (⋮) y tocá “Agregar a pantalla de inicio”. En iPhone, tocá Compartir y después “Agregar a inicio”.</p>
+    <p class="credits">Palomequis Libros · Proyecto “Herramientas para Compartir”<br>Nazareno Brouwer, Agustin Limerutti, Samia Maldonado y Santiago Rojo :3</p>
+  </section>
+
+  <!-- HUBS -->
+  <section class="view" id="v-practicar" aria-labelledby="h-practicar">
+    <span class="chip" style="--c:var(--red)">Técnicas</span>
+    <h2 id="h-practicar" style="margin-top:10px">Practicar</h2>
+    <div class="grid">
+      <button class="tile" style="--c:var(--red)" data-go="pomodoro"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><h3>Pomodoro</h3><span class="s">25 de estudio, 5 de pausa</span></span></button>
+      <button class="tile y" style="--c:var(--yellow)" data-go="subrayador"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1zM14 7l3 3"/></svg><span><h3>Subrayador</h3><span class="s">Tocá las palabras clave</span></span></button>
+      <button class="tile" style="--c:var(--violet)" data-go="frases"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span><h3>Frases locas</h3><span class="s">Armá trucos para recordar</span></span></button>
+      <button class="tile" style="--c:var(--pink)" data-go="plan"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span><h3>Plan de prueba</h3><span class="s">Poné la fecha y te armo el plan</span></span></button>
+    </div>
+  </section>
+  <section class="view" id="v-juegos" aria-labelledby="h-juegos">
+    <span class="chip" style="--c:var(--green)">Zona de juegos</span>
+    <h2 id="h-juegos" style="margin-top:10px">Juegos</h2>
+    <div class="grid">
+      <button class="tile" style="--c:var(--blue)" data-go="quiz"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></svg><span><h3>Quiz</h3><span class="s">Fácil o difícil, 10 preguntas</span></span></button>
+      <button class="tile" style="--c:var(--green)" data-go="juego"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H5v-4a2 2 0 1 0 0-4V8z"/></svg><span><h3>Unir</h3><span class="s">Técnica con lo que hace</span></span></button>
+      <button class="tile" style="--c:var(--teal)" data-go="crucigrama"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg><span><h3>Crucigrama</h3><span class="s">Con pistas del cuadernillo</span></span></button>
+      <button class="tile" style="--c:#1d2540" data-go="sopa"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l5 5"/></svg><span><h3>Sopa de letras</h3><span class="s">10 palabras escondidas</span></span></button>
+    </div>
+  </section>
+
+  <!-- SUBRAYADOR -->
+  <section class="view" id="v-subrayador" data-back="practicar" aria-labelledby="h-sub">
+    <span class="chip" style="--c:var(--yellow);color:var(--ink)">Cap. 2 · Subrayado</span>
+    <h2 id="h-sub" style="margin-top:10px">Subrayador</h2>
+    <p class="hint" style="margin-top:6px">Tocá solo las <b>palabras clave</b>: las que, si las sacás, el texto ya no se entiende. Después tocá Revisar.</p>
+    <div class="card" style="margin-top:14px;padding:14px 12px"><div id="sText"></div></div>
+    <p class="card" id="sMsg" style="margin-top:14px;min-height:56px;font-weight:500" aria-live="polite">Tocá las palabras para subrayarlas.</p>
+    <div class="row" style="margin-top:14px;flex-wrap:wrap">
+      <button class="btn" id="sCheck" style="--c:var(--yellow)">Revisar</button>
+      <button class="btn ghost" id="sReset">Borrar</button>
+      <button class="btn ghost" id="sNext">Otro texto</button>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="view" id="v-plan" data-back="practicar" aria-labelledby="h-plan">
+    <span class="chip" style="--c:var(--pink)">Cap. 4 · Pomodoro y agenda</span>
+    <h2 id="h-plan" style="margin-top:10px">Plan de prueba</h2>
+    <p class="hint" style="margin-top:6px">Poné la materia y el día de la prueba. Te armo el plan de 5 días.</p>
+    <div class="stack" style="margin-top:14px">
+      <div><label class="l" for="pMat">Materia</label><input class="field" id="pMat" style="min-height:0" type="text" maxlength="40" placeholder="Ej.: Matemática"></div>
+      <div><label class="l" for="pDate">Fecha de la prueba</label><input class="field" id="pDate" style="min-height:0" type="date"></div>
+      <button class="btn" id="pGo" style="--c:var(--pink);color:#fff">Armar mi plan</button>
+    </div>
+    <div id="pOut" style="margin-top:20px" aria-live="polite"></div>
+  </section>
+
+  <!-- CRUCIGRAMA -->
+  <section class="view" id="v-crucigrama" data-back="juegos" aria-labelledby="h-cr">
+    <span class="chip" style="--c:var(--teal)">Zona de juegos</span>
+    <h2 id="h-cr" style="margin-top:10px">Crucigrama</h2>
+    <p class="hint" style="margin-top:6px">Tocá una pista o una casilla y escribí. Sin tildes.</p>
+    <div class="cgrid" id="cGrid" style="margin-top:14px"></div>
+    <div class="row" style="margin-top:14px;flex-wrap:wrap">
+      <button class="btn" id="cCheck" style="--c:var(--teal)">Revisar</button>
+      <button class="btn ghost" id="cShow">Ver solución</button>
+      <button class="btn ghost" id="cClear">Borrar</button>
+    </div>
+    <p class="card" id="cMsg" style="margin-top:14px;display:none" aria-live="polite"></p>
+    <h3 style="margin-top:20px;font-size:16px">Horizontales</h3><div id="cAcross" style="margin-top:8px"></div>
+    <h3 style="margin-top:12px;font-size:16px">Verticales</h3><div id="cDown" style="margin-top:8px"></div>
+  </section>
+
+  <!-- SOPA -->
+  <section class="view" id="v-sopa" data-back="juegos" aria-labelledby="h-sopa">
+    <span class="chip" style="--c:#1d2540;color:var(--yellow)">Zona de juegos</span>
+    <h2 id="h-sopa" style="margin-top:10px">Sopa de letras</h2>
+    <p class="hint" style="margin-top:6px">Tocá la primera letra de una palabra y después la última. Vale en línea recta: → ↓ ↘ y al revés.</p>
+    <div class="sgrid" id="sGrid" style="margin-top:14px"></div>
+    <div id="sWords" style="margin-top:16px"></div>
+    <p class="card center" id="sWin" style="display:none;margin-top:6px"></p>
+    <button class="btn ghost" id="sRe" style="margin-top:8px">Empezar de nuevo</button>
+  </section>
+
+  <!-- LOGROS -->
+  <section class="view" id="v-logros" aria-labelledby="h-logros">
+    <span class="chip" style="--c:var(--yellow);color:var(--ink)">Tus estrellas</span>
+    <h2 id="h-logros" class="sr">Logros</h2>
+    <div id="logrosBox" style="margin-top:12px"></div>
+  </section>
+
+  <!-- POMODORO -->
+  <section class="view" id="v-pomodoro" data-back="practicar" aria-labelledby="h-pomodoro">
+    <span class="chip" style="--c:var(--red)">Cap. 4 · Pomodoro</span>
+    <h2 id="h-pomodoro" style="margin-top:10px">El tomate de estudio</h2>
+    <div class="seg" role="group" aria-label="Tipo de intervalo" style="margin-top:14px">
+      <button data-mode="estudio" aria-pressed="true">Estudio</button>
+      <button data-mode="pausa" aria-pressed="false">Pausa</button>
+      <button data-mode="larga" aria-pressed="false">Pausa larga</button>
+    </div>
+    <div class="ringwrap">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle id="ring" class="ring-fg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg>
+      <div class="ringc"><div class="mode" id="modeLbl">A estudiar</div><div class="time" id="time" role="timer" aria-live="off">25:00</div></div>
+    </div>
+    <div class="row" style="justify-content:center;gap:12px">
+      <button class="btn" id="start" style="--c:var(--red);color:#fff;min-width:140px">Empezar</button>
+      <button class="btn ghost" id="reset">Reiniciar</button>
+    </div>
+    <div class="toms" id="toms" aria-label="Tomates completados"></div>
+    <p class="center hint" id="tomLbl" style="margin-top:6px">0 de 4 tomates</p>
+    <label class="demo"><input type="checkbox" id="demo"> Modo demo (10 segundos por tomate, para mostrar en la expo)</label>
+    <p class="card hint" style="margin-top:16px;display:flex;gap:10px;align-items:center"><span aria-hidden="true"><svg class="lucho " width="52.7" height="87" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 128 Q30 138 36 152" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="36" cy="152" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 130 Q116 124 102 100" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="98" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>
+    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>
+    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>
+    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>
+    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>
+    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>
+    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.5" cy="89.5" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.5" cy="89.5" r="3.3" fill="#1d2540"/><path d="M52 80 L66 82M76 80 L90 76" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/><path d="M62 113 Q70 108 78 113" fill="none" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/><circle cx="108" cy="60" r="3" fill="#1d2540"/><circle cx="118" cy="44" r="5" fill="#1d2540"/><path d="M122 14c8-8 24 0 14 12 8 4 0 16-10 10-8 6-22-2-12-12-6-8 2-14 8-10z" fill="#fff" stroke="#1d2540" stroke-width="2.5" transform="translate(-14 4) scale(.9)"/></svg></span><span>Tip de Lucho: para estudiar de verdad, usá un reloj o timer aparte y dejá el celu lejos.</span></p>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="view" id="v-quiz" data-back="juegos" aria-labelledby="h-quiz">
+    <span class="chip" style="--c:var(--blue)">Quiz del cuadernillo</span>
+    <h2 id="h-quiz" class="sr">Quiz</h2>
+    <div id="quizBox" style="margin-top:12px"></div>
+  </section>
+
+  <!-- FRASES -->
+  <section class="view" id="v-frases" data-back="practicar" aria-labelledby="h-frases">
+    <span class="chip" style="--c:var(--violet)">Cap. 5 · Trucos para recordar</span>
+    <h2 id="h-frases" style="margin-top:10px">Generador de frases locas</h2>
+    <p class="hint" style="margin-top:6px">Escribí lo que querés recordar, una palabra por renglón o separadas por comas. Armo una frase con las iniciales.</p>
+    <div style="margin-top:14px"><label class="l" for="lista">Mi lista</label>
+    <textarea class="field" id="lista" spellcheck="false">Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano, Neptuno</textarea></div>
+    <div class="row" style="margin-top:12px;flex-wrap:wrap">
+      <button class="btn light" id="gen" style="--c:var(--violet)">Armar frase</button>
+      <button class="btn ghost" id="copy">Copiar</button>
+    </div>
+    <div class="card out" id="outBox" style="margin-top:18px" aria-live="polite"></div>
+    <p class="hint" id="copied" style="margin-top:8px;min-height:20px"></p>
+  </section>
+
+  <!-- JUEGO -->
+  <section class="view" id="v-juego" data-back="juegos" aria-labelledby="h-juego">
+    <span class="chip" style="--c:var(--green)">Zona de juegos</span>
+    <h2 id="h-juego" style="margin-top:10px">Uní con flechas</h2>
+    <p class="hint" style="margin-top:6px">Tocá una técnica y después lo que hace.</p>
+    <div class="mcols" id="mBox" style="margin-top:14px"></div>
+    <div class="card center" id="mWin" style="margin-top:16px;display:none"></div>
+    <div class="row" style="margin-top:16px;justify-content:space-between"><span class="hint" id="mAtt">Errores: 0</span><button class="btn ghost" id="mReset">Mezclar de nuevo</button></div>
+  </section>
+
+  <!-- LUCHO -->
+  <section class="view" id="v-lucho" aria-labelledby="h-lucho">
+    <span class="chip" style="--c:#1d2540;color:#FFC93C">Preguntale a Lucho</span>
+    <h2 id="h-lucho" class="sr">Preguntale a Lucho</h2>
+    <div class="stage" style="margin-top:12px">
+      <div class="lbubble" id="lbubble" aria-live="polite">¡Hola! Soy Lucho. Tocá una pregunta o escribime la tuya.</div>
+      <div class="luchowrap" id="lwrap" aria-hidden="true"><svg class="lucho " width="120.9" height="199" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 125 Q28 132 24 150" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="150" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 125 Q116 118 120 96" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="94" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>
+    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>
+    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>
+    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>
+    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>
+    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>
+    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>
+    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.2" cy="93" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.2" cy="93" r="3.3" fill="#1d2540"/><path id="mouth" d="M58 107 Q70 123 82 107" fill="none" stroke="#1d2540" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:14px;flex-wrap:wrap">
+      <label class="demo" style="margin:0"><input type="checkbox" id="voz" checked> Voz de Lucho</label>
+      <button class="btn ghost" id="repeat" style="min-height:40px;padding:8px 14px;font-size:13px">Repetir</button>
+    </div>
+    <form class="ask" id="askForm" autocomplete="off">
+      <label class="sr" for="askIn">Tu pregunta</label>
+      <input id="askIn" type="text" maxlength="120" placeholder="Escribí tu pregunta…">
+      <button class="btn" type="submit" style="--c:var(--yellow)">Preguntar</button>
+    </form>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <nav class="nav" aria-label="Secciones">
+    <button data-go="inicio"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg><span>Inicio</span></button>
+    <button data-go="practicar"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1zM14 7l3 3"/></svg><span>Practicar</span></button>
+    <button data-go="juegos"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H5v-4a2 2 0 1 0 0-4V8z"/></svg><span>Juegos</span></button>
+    <button data-go="lucho"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H10l-4 4v-4H4z"/></svg><span>Lucho</span></button>
+    <button data-go="logros"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1d2540" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.8 6 6.2.8-4.5 4.4 1.2 6.3-5.7-3.1-5.7 3.1 1.2-6.3L3 9.8 9.2 9z"/></svg><span>Estrellas</span></button>
+  </nav>
+</main>
+
+<script>
+(function(){
+  var LUCHO = { cheer: '<svg class="lucho " width="52.7" height="87" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 120 Q26 110 22 82" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="22" cy="80" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 120 Q114 110 118 82" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="118" cy="80" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.2" cy="93" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.2" cy="93" r="3.3" fill="#1d2540"/><path d="M57 106 Q70 128 83 106 Z" fill="#fff" stroke="#1d2540" stroke-width="2.5" stroke-linejoin="round"/></svg>', think: '<svg class="lucho " width="52.7" height="87" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 128 Q30 138 36 152" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="36" cy="152" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 130 Q116 124 102 100" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="98" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.5" cy="89.5" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.5" cy="89.5" r="3.3" fill="#1d2540"/><path d="M52 80 L66 82M76 80 L90 76" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/><path d="M62 113 Q70 108 78 113" fill="none" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/><circle cx="108" cy="60" r="3" fill="#1d2540"/><circle cx="118" cy="44" r="5" fill="#1d2540"/><path d="M122 14c8-8 24 0 14 12 8 4 0 16-10 10-8 6-22-2-12-12-6-8 2-14 8-10z" fill="#fff" stroke="#1d2540" stroke-width="2.5" transform="translate(-14 4) scale(.9)"/></svg>', happy: '<svg class="lucho " width="52.7" height="87" viewBox="0 0 140 230" style="transform:rotate(0deg)" aria-hidden="true"><path d="M46 125 Q28 132 24 150" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="150" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/><path d="M94 125 Q116 118 120 96" fill="none" stroke="#1d2540" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="94" r="6.5" fill="#fff" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="8" width="48" height="26" rx="11" fill="#FF8FA3" stroke="#1d2540" stroke-width="3"/>    <rect x="46" y="34" width="48" height="14" fill="#C9D1DB" stroke="#1d2540" stroke-width="3"/>    <path d="M46 40h48" stroke="#1d2540" stroke-width="1.5" opacity=".5"/>    <rect x="46" y="48" width="48" height="118" fill="#FFC93C" stroke="#1d2540" stroke-width="3"/>    <rect x="51" y="50" width="5" height="114" fill="#FFE17F"/>    <rect x="84" y="50" width="5" height="114" fill="#E8A800"/>    <path d="M46 166 L94 166 L70 210 Z" fill="#F6D7AE" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M62 193 L78 193 L70 210 Z" fill="#1d2540" stroke="#1d2540" stroke-width="3" stroke-linejoin="round"/>    <path d="M52 176 L60 176" stroke="#1d2540" stroke-width="2" opacity=".35"/>    <circle cx="51" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="89" cy="106" r="5" fill="#FF9AA2" opacity=".75"/><circle cx="60" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="61.2" cy="93" r="3.3" fill="#1d2540"/><circle cx="80" cy="92" r="7" fill="#fff" stroke="#1d2540" stroke-width="2.5"/><circle cx="81.2" cy="93" r="3.3" fill="#1d2540"/><path d="M58 107 Q70 123 82 107" fill="none" stroke="#1d2540" stroke-width="3" stroke-linecap="round"/></svg>' };
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var TABS = ['inicio','pomodoro','quiz','frases','juego','lucho'];
+
+  /* ---------- navegación ---------- */
+  var VALID = ['inicio','practicar','juegos','pomodoro','subrayador','frases','plan','quiz','juego','crucigrama','sopa','lucho','logros'];
+  var GROUP = { pomodoro:'practicar', subrayador:'practicar', frases:'practicar', plan:'practicar', quiz:'juegos', juego:'juegos', crucigrama:'juegos', sopa:'juegos' };
+  var BACKL = { practicar: '‹ Practicar', juegos: '‹ Juegos' };
+  $$('.view[data-back]').forEach(function(v){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'back'; b.dataset.go = v.dataset.back; b.textContent = BACKL[v.dataset.back];
+    v.insertBefore(b, v.firstChild);
+  });
+  function show(tab){
+    if (VALID.indexOf(tab) < 0) tab = 'inicio';
+    $$('.view').forEach(function(v){ v.classList.toggle('on', v.id === 'v-' + tab); });
+    var grp = GROUP[tab] || tab;
+    $$('.nav button').forEach(function(b){
+      if (b.dataset.go === grp) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+    });
+    try { if (location.hash !== '#' + tab) history.replaceState(null, '', '#' + tab); } catch(e){}
+    window.scrollTo(0, 0);
+    if (tab !== 'lucho') { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e){} if (typeof talk === 'function') talk(false); }
+    if (tab === 'logros') drawLogros();
+  }
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('[data-go]'); if (g) show(g.dataset.go);
+  });
+  window.addEventListener('hashchange', function(){ show(location.hash.slice(1)); });
+
+  /* ---------- estrellas y logros ---------- */
+  var ACH = [
+    { id:'tomate1', t:'Primer tomate', d:'Terminá un pomodoro.', s:1 },
+    { id:'tomate4', t:'Cuatro tomates', d:'Completá 4 pomodoros seguidos.', s:2 },
+    { id:'subrayador', t:'Ojo de lince', d:'Subrayá un texto sin errores.', s:2 },
+    { id:'frase', t:'Mente loca', d:'Armá una frase loca.', s:1 },
+    { id:'plan', t:'Plan en marcha', d:'Armá tu plan para una prueba.', s:1 },
+    { id:'quiz1', t:'Quiz completado', d:'Terminá un quiz.', s:1 },
+    { id:'quiz10', t:'Cerebro de oro', d:'Sacá 9 o más en un quiz.', s:2 },
+    { id:'unir', t:'Pareja perfecta', d:'Terminá el juego de unir.', s:1 },
+    { id:'unirperfecto', t:'Sin errores', d:'Terminá unir sin ningún error.', s:1 },
+    { id:'sopa', t:'Cazapalabras', d:'Encontrá todas las palabras de la sopa.', s:2 },
+    { id:'cruci', t:'Crucigramista', d:'Resolvé el crucigrama.', s:2 },
+    { id:'lucho', t:'Amigo de Lucho', d:'Hacele una pregunta a Lucho.', s:1 }
+  ];
+  var KEY = 'estudiar-sin-sufrir-v1', got = {};
+  try { JSON.parse(localStorage.getItem(KEY) || '[]').forEach(function(id){ got[id] = 1; }); } catch(e){}
+  function saveAch(){ try { localStorage.setItem(KEY, JSON.stringify(Object.keys(got))); } catch(e){} }
+  function starsTotal(){ return ACH.reduce(function(a, x){ return a + (got[x.id] ? x.s : 0); }, 0); }
+  function levelOf(n){ return n >= 15 ? 'Crack del estudio' : n >= 10 ? 'Experto' : n >= 5 ? 'Estudiante' : n >= 1 ? 'Aprendiz' : 'Recién llegado'; }
+  var STAR = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.7L12 17.5 6.1 20.8l1.3-6.7L2.5 9.5l6.6-.8z" fill="#FFC93C" stroke="#1d2540" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  function drawHome(){
+    var n = starsTotal();
+    $('#homeStars').innerHTML = STAR + '<span><b>' + n + (n === 1 ? ' estrella' : ' estrellas') + '</b><br><span class="hint">Nivel: ' + levelOf(n) + ' · tocá para ver tus logros</span></span>';
+  }
+  function drawLogros(){
+    var n = starsTotal(), done = ACH.filter(function(x){ return got[x.id]; }).length;
+    $('#logrosBox').innerHTML =
+      '<div class="card center"><div aria-hidden="true" style="display:flex;justify-content:center">' + LUCHO.cheer + '</div>' +
+      '<div class="score">' + n + '<span style="font-size:26px"> ★</span></div><p style="font-weight:600;margin-top:6px">' + levelOf(n) + '</p>' +
+      '<p class="hint">' + done + ' de ' + ACH.length + ' logros</p></div>' +
+      '<div style="margin-top:16px">' + ACH.map(function(x){
+        var on = got[x.id];
+        return '<div class="ach' + (on ? '' : ' lock') + '"><div class="st">' + (on ? '★' : '?') + '</div><div><b>' + x.t + '</b><span>' + x.d + ' · ' + x.s + (x.s > 1 ? ' estrellas' : ' estrella') + '</span></div></div>';
+      }).join('') + '</div>' +
+      '<button class="btn ghost" id="wipe" style="margin-top:6px;width:100%">Borrar mi progreso</button>';
+    $('#wipe').addEventListener('click', function(){ got = {}; saveAch(); drawLogros(); drawHome(); });
+  }
+  function toast(html){
+    var t = $('#toast'); t.innerHTML = html; t.classList.add('on');
+    clearTimeout(toast.t); toast.t = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+  }
+  function unlock(id){
+    if (got[id]) return;
+    var a = ACH.filter(function(x){ return x.id === id; })[0]; if (!a) return;
+    got[id] = 1; saveAch(); toast('<b>¡Logro!</b> ' + a.t + ' · +' + a.s + ' ★'); drawHome();
+    if ($('#v-logros').classList.contains('on')) drawLogros();
+  }
+  drawHome();
+
+  /* ---------- pomodoro ---------- */
+  var MODES = {
+    estudio: { min: 25, label: 'A estudiar', color: '#E5484D' },
+    pausa:   { min: 5,  label: 'Pausa corta', color: '#38B24D' },
+    larga:   { min: 15, label: 'Pausa larga', color: '#2F8BE6' }
+  };
+  var P = { mode: 'estudio', running: false, end: 0, left: 25*60*1000, total: 25*60*1000, done: 0, timer: null, ctx: null };
+  var CIRC = 326.7;
+  function dur(m){ return ($('#demo').checked ? 10 : MODES[m].min * 60) * 1000; }
+  function fmt(ms){ var s = Math.max(0, Math.ceil(ms/1000)); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+  function tomSvg(f){
+    return '<svg class="tom' + (f ? ' f' : '') + '" viewBox="0 0 100 100" aria-hidden="true"><ellipse class="b" cx="50" cy="60" rx="40" ry="35"/><path class="l" d="M50 28 L38 14 L48 20 L50 6 L54 20 L64 12 L58 28 Z" stroke-linejoin="round"/></svg>';
+  }
+  function drawToms(){
+    $('#toms').innerHTML = [0,1,2,3].map(function(i){ return tomSvg(i < P.done); }).join('');
+    $('#tomLbl').textContent = P.done + ' de 4 tomates' + (P.done === 4 ? ' · ¡toca pausa larga!' : '');
+  }
+  function paint(){
+    $('#time').textContent = fmt(P.left);
+    $('#modeLbl').textContent = MODES[P.mode].label;
+    var frac = P.total ? P.left / P.total : 1;
+    $('#ring').style.strokeDashoffset = String(CIRC * (1 - frac));
+    $('#ring').style.stroke = MODES[P.mode].color;
+    $('#start').textContent = P.running ? 'Pausar' : (P.left < P.total ? 'Seguir' : 'Empezar');
+    $$('.seg button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.mode === P.mode)); });
+    try { document.title = P.running ? fmt(P.left) + ' · A estudiar sin sufrir' : 'A estudiar sin sufrir'; } catch(e){}
+  }
+  function setMode(m){
+    stop(); P.mode = m; P.total = P.left = dur(m); paint();
+  }
+  function stop(){ P.running = false; if (P.timer) { clearInterval(P.timer); P.timer = null; } }
+  function beep(){
+    try {
+      var ctx = P.ctx; if (!ctx) return;
+      [0, .28, .56].forEach(function(d){
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
+        var t = ctx.currentTime + d; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.35, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .22);
+        o.start(t); o.stop(t + .25);
+      });
+      if (navigator.vibrate) navigator.vibrate([200,100,200]);
+    } catch(e){}
+  }
+  function finish(){
+    stop(); beep();
+    if (P.mode === 'estudio') {
+      P.done = Math.min(4, P.done + 1); drawToms(); unlock('tomate1'); if (P.done >= 4) unlock('tomate4');
+      setMode(P.done >= 4 ? 'larga' : 'pausa');
+    } else {
+      if (P.mode === 'larga') { P.done = 0; drawToms(); }
+      setMode('estudio');
+    }
+  }
+  function tick(){
+    P.left = P.end - Date.now();
+    if (P.left <= 0) { P.left = 0; paint(); finish(); return; }
+    paint();
+  }
+  $('#start').addEventListener('click', function(){
+    if (!P.ctx) { try { P.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+    try { if (P.ctx && P.ctx.state === 'suspended') P.ctx.resume(); } catch(e){}
+    if (P.running) { stop(); paint(); return; }
+    P.running = true; P.end = Date.now() + P.left; P.timer = setInterval(tick, 250); tick();
+  });
+  $('#reset').addEventListener('click', function(){ setMode(P.mode); });
+  $$('.seg button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.dataset.mode); }); });
+  $('#demo').addEventListener('change', function(){ setMode(P.mode); });
+  drawToms(); paint();
+
+  /* ---------- quiz ---------- */
+  var EASY = [
+    { q: '¿Cuánto dura un pomodoro de estudio?', o: ['10 minutos','25 minutos','60 minutos'], a: 1, e: 'Son 25 minutos a pleno y después 5 de pausa.' },
+    { q: '¿Cada cuántos pomodoros va la pausa larga?', o: ['Cada 2','Cada 4','Cada 10'], a: 1, e: 'Cada 4 tomates descansás entre 15 y 30 minutos.' },
+    { q: 'En un mapa conceptual, ¿qué se escribe sobre las flechas?', o: ['Dibujos','Las palabras de enlace','El nombre del profe'], a: 1, e: 'Los enlaces dicen cómo se relacionan las ideas: “tiene”, “se divide en”, “por ejemplo”.' },
+    { q: '¿Cuánto del texto conviene subrayar?', o: ['Todo','Solo lo clave, menos de la mitad','Nada'], a: 1, e: 'Si pintaste todo, no marcaste nada.' },
+    { q: 'En el código de colores, ¿qué va en amarillo?', o: ['La idea principal','Los ejemplos','Lo que no entendí'], a: 0, e: 'Amarillo para la idea principal; verde para ejemplos; rosa para datos; azul para dudas.' },
+    { q: '¿Qué es una mnemotecnia?', o: ['Un tipo de examen','Un truco para recordar','Una materia nueva'], a: 1, e: 'Frases, rimas, siglas o la casa de la memoria: todo vale si se te pega.' },
+    { q: 'En “Mi Valiente Tío Marcos Juega Siempre Unos Naipes”, ¿qué planeta es la T?', o: ['Titán','Tierra','Tabla'], a: 1, e: 'Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano, Neptuno.' },
+    { q: '¿Cuál es la regla de oro con la IA?', o: ['Que te lo haga','Copiar y pegar','Que te explique, no que te lo haga'], a: 2, e: 'La IA es tu profe particular: la tarea la hacés vos.' },
+    { q: 'La IA te dice un dato. ¿Qué hacés?', o: ['Lo chequeás en tu carpeta o libro','Lo copiás directo','Le creés sin pensar'], a: 0, e: 'La IA también se equivoca. Siempre chequeá.' },
+    { q: '¿Qué técnica usa llaves para clasificar?', o: ['Cuadro sinóptico','Pomodoro','Subrayado'], a: 0, e: 'El cuadro sinóptico va de lo general a lo particular, con llaves.' }
+  ];
+  var HARD = [
+    { q: 'Tu prueba es en 3 días. Según el plan, ¿qué hacés hoy?', o: ['Armar mapas o cuadros de cada tema','Repaso liviano y a dormir','Nada, todavía falta'], a: 0, e: 'Cinco días: juntar todo. Cuatro: subrayar y preguntar. Tres: armar mapas o cuadros.' },
+    { q: '¿Qué palabras NO conviene subrayar?', o: ['Las de relleno, como “los” o “son”','Las palabras clave','Los nombres y las fechas'], a: 0, e: 'Subrayá solo lo que, si lo sacás, el texto deja de entenderse.' },
+    { q: 'Estás en un pomodoro y se te ocurre algo. ¿Qué hacés?', o: ['Lo anotás en un papelito y seguís','Mirás el celu','Parás el timer'], a: 0, e: 'Lo resolvés en la pausa. El tomate no se interrumpe.' },
+    { q: 'Querés recordar Norte, Este, Sur, Oeste. ¿Qué te sirve?', o: ['Una frase loca con las iniciales N-E-S-O','Subrayarlo todo','Hacer un pomodoro'], a: 0, e: 'Una frase disparatada con las iniciales se te queda en la cabeza.' },
+    { q: 'En un cuadro sinóptico, ¿hacia dónde se lee?', o: ['De izquierda a derecha, de lo general a lo particular','De abajo hacia arriba','Al azar'], a: 0, e: 'El tema va a la izquierda y las llaves abren las partes y los ejemplos.' },
+    { q: 'La IA te explicó algo y no lo entendiste. ¿Qué hacés?', o: ['Le pedís otra explicación con otro ejemplo','Copiás igual','Te rendís'], a: 0, e: 'Para eso está: que te lo explique de otra forma.' },
+    { q: '¿Cómo es una agenda realista?', o: ['Pocas cosas por día y horario fijo','Todas las materias el mismo día','Solo estudiar de noche'], a: 0, e: 'Una agenda realista se puede cumplir hasta un día que estás cansado.' },
+    { q: 'Subrayaste algo que no entendés. ¿Qué hacés?', o: ['Lo marcás en azul y se lo preguntás al profe','Lo ignorás','Lo subrayás en amarillo'], a: 0, e: 'Azul es para lo que no entendiste. Preguntar es de vivos.' },
+    { q: '¿Cuándo conviene repasar una clase?', o: ['El mismo día','Una hora antes de la prueba','Nunca'], a: 0, e: 'Si repasás el mismo día, te acordás muchísimo más.' },
+    { q: 'Antes de contestar una prueba, ¿qué conviene hacer?', o: ['Leerla toda primero','Empezar por la última','Contestar sin leer'], a: 0, e: 'Leé todo antes de empezar y arrancá por lo que sabés.' }
+  ];
+  var Z = { i: 0, score: 0, answered: false, order: [], set: EASY, name: 'easy' };
+  function shuffle(a){ a = a.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function quizMenu(){
+    $('#quizBox').innerHTML = '<div class="card center"><div aria-hidden="true" style="display:flex;justify-content:center">' + LUCHO.think + '</div>' +
+      '<h3 style="margin:8px 0 4px">¿Qué nivel querés?</h3><p class="hint" style="margin-bottom:14px">Son 10 preguntas con tres opciones.</p>' +
+      '<div class="stack"><button class="btn light" id="qe" style="--c:var(--green)">Fácil</button><button class="btn light" id="qh" style="--c:var(--blue)">Difícil</button></div></div>';
+    $('#qe').addEventListener('click', function(){ quizStart(EASY, 'easy'); });
+    $('#qh').addEventListener('click', function(){ quizStart(HARD, 'hard'); });
+  }
+  function quizStart(set, name){ Z.set = set; Z.name = name; Z.i = 0; Z.score = 0; Z.answered = false; Z.order = set.map(function(){ return shuffle([0,1,2]); }); quizDraw(); }
+  function quizDraw(){
+    var box = $('#quizBox'), QS = Z.set;
+    if (Z.i >= QS.length) {
+      var s = Z.score, msg = s >= 9 ? '¡Sos un crack del estudio!' : s >= 7 ? '¡Muy bien! Ya casi sos un experto.' : s >= 4 ? 'Vas bien. Repasá el cuadernillo y volvé a probar.' : 'Está bien, recién empezás. Leé el cuadernillo y probá de nuevo.';
+      unlock('quiz1'); if (s >= 9) unlock('quiz10');
+      box.innerHTML = '<div class="card center"><div aria-hidden="true" style="display:flex;justify-content:center">' + LUCHO.cheer + '</div><div class="score">' + s + '<span style="font-size:28px">/' + QS.length + '</span></div><p style="margin:10px 0 16px;font-weight:600">' + msg + '</p><div class="stack"><button class="btn" id="again" style="--c:var(--blue);color:#fff">Jugar de nuevo</button><button class="btn ghost" id="lvl">Elegir nivel</button></div></div>';
+      $('#again').addEventListener('click', function(){ quizStart(Z.set, Z.name); });
+      $('#lvl').addEventListener('click', quizMenu); return;
+    }
+    var q = QS[Z.i], ord = Z.order[Z.i];
+    box.innerHTML = '<div class="row" style="justify-content:space-between;margin-bottom:8px;font-size:13px;font-weight:600"><span>Pregunta ' + (Z.i+1) + ' de ' + QS.length + '</span><span>Puntos: ' + Z.score + '</span></div>' +
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + QS.length + '" aria-valuenow="' + Z.i + '"><i style="width:' + (Z.i/QS.length*100) + '%"></i></div>' +
+      '<p class="q">' + q.q + '</p><div class="opts">' +
+      ord.map(function(oi, k){ return '<button class="opt" data-oi="' + oi + '"><span class="k">' + 'ABC'[k] + '</span><span>' + q.o[oi] + '</span></button>'; }).join('') +
+      '</div><div id="feed"></div>';
+    Z.answered = false;
+    $$('.opt', box).forEach(function(b){ b.addEventListener('click', function(){ quizAnswer(b, q); }); });
+  }
+  function quizAnswer(btn, q){
+    if (Z.answered) return; Z.answered = true;
+    var oi = Number(btn.dataset.oi), ok = oi === q.a;
+    if (ok) Z.score++;
+    $$('.opt').forEach(function(b){
+      b.disabled = true;
+      var v = Number(b.dataset.oi);
+      if (v === q.a) b.classList.add('ok'); else if (b === btn) b.classList.add('no');
+    });
+    var last = Z.i === Z.set.length - 1;
+    $('#feed').innerHTML = '<div class="feed card"><span aria-hidden="true">' + (ok ? LUCHO.cheer : LUCHO.think) + '</span><div><b>' + (ok ? '¡Correcto!' : 'Casi…') + '</b><p>' + q.e + '</p></div></div>' +
+      '<button class="btn" id="next" style="--c:var(--yellow);margin-top:14px;width:100%">' + (last ? 'Ver mi resultado' : 'Siguiente') + '</button>';
+    $('#next').addEventListener('click', function(){ Z.i++; quizDraw(); window.scrollTo(0,0); });
+    $('#next').focus();
+  }
+  quizMenu();
+
+  /* ---------- frases locas ---------- */
+  var BANK = {
+    A:['abuela','atrevido','alegre','araña','abraza','astuto'], B:['bailarín','burro','baña','bonito','ballena','bosteza'],
+    C:['cocina','corre','cangrejo','cansado','caramelo','canta'], D:['dinosaurio','duerme','dormilón','dulce','dibuja','dragón'],
+    E:['elefante','enojado','escribe','estrella','espía','elegante'], F:['feliz','fantasma','frutilla','flaco','futbolista','fabrica'],
+    G:['gato','gigante','galletita','gruñón','graba','gritón'], H:['helado','hormiga','hace','hambriento','hamburguesa','habla'],
+    I:['iguana','inventa','inteligente','isla','imita','increíble'], J:['jirafa','juega','jugoso','jamón','jinete','jura'],
+    K:['koala','karateka','kiwi','kilómetro','kayak','karaoke'], L:['loro','lava','lento','luna','limón','lee'],
+    M:['mono','mágico','manda','mochila','mira','mamá'], N:['nube','nada','naranja','nervioso','nunca','noble'],
+    'Ñ':['ñoquis','ñandú','ñoño'], O:['oso','ocho','olvida','ojo','original','observa'],
+    P:['pingüino','pinta','pelota','pícaro','pizza','patea'], Q:['queso','quiere','quieto','quince','quema'],
+    R:['rana','ríe','rápido','robot','ruido','recuerda'], S:['sapo','salta','simpático','sandía','sueña','sabio'],
+    T:['tigre','tiene','tímido','torta','trepa','tranquilo'], U:['unicornio','usa','uva','único','urgente','une'],
+    V:['vaca','vuela','valiente','vende','violín','veloz'], W:['wafle','walkie','wifi','wombat'],
+    X:['xilófono','xenón','xilófono'], Y:['yegua','yoga','yate','yema','yoyó'],
+    Z:['zorro','zapato','zumba','zanahoria','zombi','zurdo']
+  };
+  var lastPhrase = '';
+  function parseList(t){
+    return t.split(/[\n,;]+/).map(function(s){ return s.trim(); }).filter(Boolean).slice(0, 14);
+  }
+  function initial(w){
+    var c = w.replace(/^[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+/, '').charAt(0);
+    if (!c) return ''; c = c.toUpperCase();
+    return c.replace('Á','A').replace('É','E').replace('Í','I').replace('Ó','O').replace('Ú','U').replace('Ü','U');
+  }
+  function pick(arr, used){
+    var pool = arr.filter(function(x){ return used.indexOf(x) < 0; }); if (!pool.length) pool = arr;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  function makePhrase(){
+    var items = parseList($('#lista').value), out = $('#outBox');
+    if (!items.length) { out.innerHTML = '<p class="hint">Escribí al menos una palabra arriba.</p>'; lastPhrase = ''; return; }
+    var used = [], pairs = [], words = [];
+    items.forEach(function(it){
+      var ini = initial(it), bank = BANK[ini];
+      if (!ini || !bank) { pairs.push({ i: it.charAt(0).toUpperCase(), src: it, w: it }); words.push(it); return; }
+      var w = pick(bank, used); used.push(w);
+      var shown = w.charAt(0).toUpperCase() + w.slice(1);
+      pairs.push({ i: ini, src: it, w: shown }); words.push(shown);
+    });
+    lastPhrase = words.join(' ');
+    out.innerHTML = '<div class="pairs">' + pairs.map(function(p){
+      return '<div class="pw"><b>' + p.i + '</b><span>' + p.src.replace(/</g,'&lt;') + '</span><div class="w">' + p.w.replace(/</g,'&lt;') + '</div></div>';
+    }).join('') + '</div><p style="margin-top:14px;font-family:var(--display);font-size:20px;line-height:1.2">' + lastPhrase.replace(/</g,'&lt;') + '</p>' +
+    '<p class="hint" style="margin-top:8px">Cuanto más disparatada, más se te pega. ¿No te gusta? Tocá “Armar frase” de nuevo.</p>';
+  }
+  $('#gen').addEventListener('click', function(){ makePhrase(); unlock('frase'); });
+  $('#copy').addEventListener('click', function(){
+    var c = $('#copied');
+    if (!lastPhrase) { c.textContent = 'Primero armá una frase.'; return; }
+    try {
+      navigator.clipboard.writeText(lastPhrase).then(function(){ c.textContent = 'Frase copiada.'; }, function(){ c.textContent = 'No se pudo copiar. Seleccioná el texto y copialo a mano.'; });
+    } catch(e){ c.textContent = 'No se pudo copiar. Seleccioná el texto y copialo a mano.'; }
+  });
+  makePhrase();
+
+  /* ---------- unir ---------- */
+  var PAIRS = [
+    ['Subrayado','Marcar solo las palabras clave'],
+    ['Mapa conceptual','Cajas y flechas para ordenar ideas'],
+    ['Pomodoro','Trabajar 25 minutos y descansar 5'],
+    ['Mnemotecnia','Frases y rimas para recordar mejor'],
+    ['Estudiar con IA','Pedirle que te explique y te tome preguntas']
+  ];
+  var M = { sel: null, errors: 0, matched: 0 };
+  function mDraw(){
+    M.sel = null; M.errors = 0; M.matched = 0;
+    var right = shuffle(PAIRS.map(function(p,i){ return i; }));
+    var html = '<div class="h">Técnica</div><div class="h">Qué hace</div>';
+    for (var r = 0; r < PAIRS.length; r++){
+      html += '<button class="mi l" data-side="l" data-i="' + r + '">' + PAIRS[r][0] + '</button>' +
+              '<button class="mi" data-side="r" data-i="' + right[r] + '">' + PAIRS[right[r]][1] + '</button>';
+    }
+    $('#mBox').innerHTML = html; $('#mWin').style.display = 'none'; $('#mAtt').textContent = 'Errores: 0';
+  }
+  $('#mBox').addEventListener('click', function(e){
+    var b = e.target.closest('.mi'); if (!b || b.classList.contains('done')) return;
+    if (b.dataset.side === 'l') {
+      $$('.mi.l').forEach(function(x){ x.classList.remove('sel'); });
+      b.classList.add('sel'); M.sel = b; return;
+    }
+    if (!M.sel) { return; }
+    if (M.sel.dataset.i === b.dataset.i) {
+      M.sel.classList.remove('sel'); M.sel.classList.add('done'); b.classList.add('done'); M.sel = null; M.matched++;
+      if (M.matched === PAIRS.length) { unlock('unir'); if (M.errors === 0) unlock('unirperfecto');
+        $('#mWin').innerHTML = '<div style="display:flex;justify-content:center" aria-hidden="true">' + LUCHO.cheer + '</div><h3 style="margin-top:6px">' + (M.errors === 0 ? '¡Perfecto, sin errores!' : '¡Lo lograste!') + '</h3><p class="hint" style="margin-top:4px">Errores: ' + M.errors + '</p>';
+        $('#mWin').style.display = 'block';
+      }
+    } else {
+      M.errors++; $('#mAtt').textContent = 'Errores: ' + M.errors;
+      b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad');
+    }
+  });
+  $('#mReset').addEventListener('click', mDraw);
+  mDraw();
+
+  /* ---------- lucho habla ---------- */
+  var KB_EXTRA = [{"k": ["quien es rojo"], "a": "Rojo es el que me creó. ¡Un crack!"}, {"k": ["sos una ia", "eres una ia", "sos real", "eres real", "sos humano", "eres un robot", "sos un robot", "sos inteligencia"], "a": "Soy un personaje: respondo con frases que escribió el equipo. No soy una IA de verdad, pero sé mucho de estudio."}, {"k": ["esta app", "para que sirve", "como se usa", "como funciona esta", "que es esto"], "a": "Esta app es el cuadernillo hecho juego: practicás las técnicas, jugás y juntás estrellas."}, {"k": ["expo", "exposicion", "presentacion", "coloquio", "stand"], "a": "En la expo les van a mostrar el cuadernillo y esta app. ¡Probala, que es lo mejor!"}, {"k": ["cuadernillo", "librito", "pdf"], "a": "El cuadernillo ¡A estudiar sin sufrir! tiene 46 páginas con técnicas, juegos y espacios para escribir."}, {"k": ["capitulos", "cuantas tecnicas", "tecnicas hay", "que tecnicas"], "a": "Hay seis capítulos: atención en clase, subrayado, mapas y cuadros, Pomodoro, mnemotecnias y estudiar con la IA."}, {"k": ["estrellas", "logros", "nivel", "puntos", "medallas"], "a": "Ganás estrellas cuando hacés cosas: un pomodoro, un quiz, un juego. Mirá la pestaña Estrellas."}, {"k": ["crucigrama"], "a": "El crucigrama está en Juegos. Las pistas salen del cuadernillo."}, {"k": ["sopa de letras", "sopa"], "a": "En la sopa de letras hay 10 palabras escondidas. Tocá la primera letra y después la última."}, {"k": ["plan de prueba", "armar un plan", "plan para la prueba", "plan de estudio"], "a": "En Practicar, Plan de prueba, ponés la fecha y te armo el plan de 5 días."}, {"k": ["subrayador"], "a": "El subrayador está en Practicar: tocá las palabras clave de un texto y te digo cómo te fue."}, {"k": ["cuantos anos", "edad", "cuando naciste"], "a": "Nací en 2026, en la editorial Palomequis Libros. Soy un lápiz muy joven."}, {"k": ["color favorito", "tu color"], "a": "Amarillo, como mi cuerpo. Aunque el rosa de la goma también me gusta."}, {"k": ["comida favorita", "que comes", "hambre"], "a": "Grafito, nada más. Bueno, y un buen mate de vez en cuando."}, {"k": ["secreto", "sorpresa", "huevo de pascua"], "a": "Shhh… el secreto es que estudiar un poquito todos los días rinde más que estudiar todo junto."}, {"k": ["sentido de la vida"], "a": "Cuarenta y dos, según los libros. Pero para aprobar, mejor un Pomodoro."}, {"k": ["aprobar", "pasar de ano", "buenas notas", "sacar notas"], "a": "Poco todos los días, atención en clase y preguntar lo que no entendés. Eso suma más que cualquier truco."}, {"k": ["te quiero", "sos genial", "sos mi amigo", "sos el mejor"], "a": "¡Gracias! Yo estoy contento de ayudarte. Dale, ¿qué estudiamos?"}, {"k": ["boludo", "pelotudo", "tonto", "idiota", "estupido"], "a": "Uh, qué fuerte. Preguntame algo del estudio, que ahí soy un crack."}, {"k": ["resumen", "resumir", "resumo"], "a": "Un buen resumen sale de tu subrayado: juntá las palabras clave y la idea principal, y escribilo con tus palabras."}, {"k": ["tarjetas", "flashcards", "fichas"], "a": "Las tarjetas sirven para repasar: pregunta de un lado, respuesta del otro. Probá hacerlas con lo que subrayaste."}, {"k": ["leer", "lectura", "comprension"], "a": "Leé de a párrafos: frená, preguntate de qué habla y escribí la idea al costado."}, {"k": ["musica", "cancion"], "a": "Si te distrae, mejor silencio. Si usás música, que sea tranquila y sin letra."}, {"k": ["en grupo", "con amigos", "grupal", "companeros"], "a": "En grupo sirve para explicarse entre todos, pero primero estudiá solo y después compará."}];
+  var KB = [{"k": ["hola", "buenas", "buen dia", "que tal", "hey", "holi"], "a": "¡Hola! Soy Lucho, un lápiz que sabe de estudio. Preguntame lo que quieras sobre las técnicas del cuadernillo."}, {"k": ["quien sos", "quien eres", "como te llamas", "que sos", "tu nombre", "lapiz"], "a": "Soy Lucho, el lápiz del cuadernillo ¡A estudiar sin sufrir! Nací en la editorial Palomequis Libros."}, {"k": ["palomequis", "editorial"], "a": "Palomequis Libros es nuestra editorial imaginaria. Su logo es una paloma sobre un libro abierto."}, {"k": ["quien te hizo", "quien te creo", "quienes te hicieron", "integrantes", "autores", "quien hizo", "quienes hicieron", "creadores"], "a": "Me creó Rojo. Me dio vida, punta y todo, para ayudar a los chicos de 1° y 2°."}, {"k": ["pomodoro", "pomodoros", "tomate", "tomates", "25 minutos"], "a": "Es el método del tomate: 25 minutos de estudio a pleno y 5 de pausa. Cada 4 tomates, una pausa larga de 15 a 30 minutos."}, {"k": ["por que tomate", "porque tomate", "por que se llama", "origen del pomodoro", "de donde viene"], "a": "Pomodoro significa tomate en italiano. El inventor usaba un reloj de cocina con forma de tomate."}, {"k": ["pausa", "pausas", "que hago en la pausa", "descanso corto"], "a": "En la pausa, pará, tomá agua y estirate. Sin dispositivos electrónicos. ¡Es descanso de verdad!"}, {"k": ["distra", "concentr", "celu", "celular", "atencion al estudiar"], "a": "Guardá el celu lejos y anotá en un papelito lo que se te ocurra. Lo resolvés en la pausa."}, {"k": ["subray", "subrayo", "subrayar", "subrayado", "resaltar"], "a": "Tres pasos: uno, leé todo sin lápiz. Dos, preguntate de qué habla, esa es la idea principal. Tres, subrayá solo palabras clave: las que, si las sacás, el texto ya no se entiende."}, {"k": ["cuanto subray", "subrayar todo", "pinte todo", "demasiado subrayado", "pintar toda"], "a": "Si pintaste más de la mitad, te pasaste. Y si pintaste todo, no marcaste nada."}, {"k": ["color", "colores", "fibron", "resaltador", "fibra"], "a": "Amarillo para la idea principal, verde para los ejemplos, rosa para los datos y azul para lo que no entendiste."}, {"k": ["idea principal", "idea central", "idea importante"], "a": "Es lo más importante del párrafo. Preguntate: ¿de qué habla? La respuesta es la idea principal."}, {"k": ["mapa conceptual", "mapa", "mapas", "conceptual"], "a": "Es un dibujo con cajas para las ideas y flechas con palabras de enlace, como tiene o se divide en. Va de lo general arriba a lo particular abajo."}, {"k": ["cuadro sinoptico", "sinoptico", "llaves", "cuadro"], "a": "Sirve para clasificar. Ponés el tema a la izquierda y abrís llaves con las partes y los ejemplos."}, {"k": ["diferencia entre", "cual uso", "mapa o cuadro", "cuando uso"], "a": "Mapa conceptual cuando las ideas se relacionan. Cuadro sinóptico cuando hay que clasificar."}, {"k": ["mnemotec", "mnemonic", "recordar", "memoria", "memorizar", "acordar", "acuerdo"], "a": "Una mnemotecnia es un truco para recordar con frases locas, rimas, siglas o la casa de la memoria. Cuanto más disparatada, mejor."}, {"k": ["planetas", "dame una mnemo", "dame una mnemotecnia", "ejemplo de mnemo", "frase loca", "arcoiris", "ejemplo mnemo"], "a": "Mi Valiente Tío Marcos Juega Siempre Unos Naipes. Son Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno."}, {"k": ["tabla del 9", "tabla del nueve", "por 9", "tablas", "multiplicar", "multiplicacion"], "a": "Abrí las dos manos y doblá el dedo del número. Para nueve por cuatro, doblás el cuarto: a la izquierda quedan 3 y a la derecha 6. ¡Treinta y seis!"}, {"k": ["ia", "inteligencia artificial", "chatgpt", "chat gpt", "gemini", "robot"], "a": "Que te explique, no que te lo haga. Pedile ejemplos, que te tome preguntas sin darte la respuesta, y después contalo con tus palabras."}, {"k": ["tarea", "trabajo practico", "hace la tarea", "haga mi tarea", "copiar", "copiar y pegar"], "a": "Mejor que no te la haga: si la IA lo hace, copiás y no aprendés nada. Usala como profe particular, la tarea la hacés vos."}, {"k": ["se equivoca", "confiar", "confiable", "fuente", "fuentes", "es verdad", "chequear", "falso", "fake"], "a": "La IA también se equivoca. Chequeá en tu carpeta o libro, y preguntate quién lo escribió, cuándo y si otros lo dicen igual."}, {"k": ["atencion", "prestar atencion", "clase", "profe", "profesor"], "a": "Mirá al profe, guardá el celu, anotá palabras clave y preguntá si no entendés. Lo que entendés en clase no lo tenés que aprender de cero en tu casa."}, {"k": ["prueba", "examen", "evaluacion", "rendir", "parcial", "pruebas"], "a": "Plan de 5 días. Cinco: juntá todo. Cuatro: subrayá y preguntá. Tres: armá mapas. Dos: trucos y práctica. Uno: repaso liviano y dormí bien. ¡Y hoy, a rendir!"}, {"k": ["agenda", "organizar", "organizo", "organizarme", "tiempo", "horario", "planificar"], "a": "Poné pocas cosas por día, un horario fijo, lo más difícil primero, anotá pruebas con una semana de aviso y dejá aire para imprevistos."}, {"k": ["ultimo momento", "ultimo dia", "dejo para", "dejar para", "procrastin", "domingo"], "a": "Estudiar el domingo a las 22:30 no funciona. 25 minutos por día durante toda la semana, sí."}, {"k": ["dormir", "sueno", "descansar", "cansado", "cansancio", "descanso"], "a": "Descansar también es estudiar. Dormir bien vale más que una hora extra de estudio a la madrugada."}, {"k": ["ganas", "motivacion", "flojera", "paja", "pereza", "empezar", "aburre", "aburrido"], "a": "Empezá con un solo tomate de 25 minutos. Lo difícil es arrancar; después sigue solo."}, {"k": ["nervios", "nervioso", "ansiedad", "miedo", "estres", "estresado"], "a": "Respirá hondo, leé toda la prueba antes de empezar y arrancá por lo que sabés. Vas a estar bien."}, {"k": ["repasar", "repaso", "repasa", "repasando"], "a": "Repasá el mismo día de la clase. Cinco minutos alcanzan y te acordás muchísimo más."}, {"k": ["no entiendo", "no entendi", "dificil", "me cuesta", "no se"], "a": "Releé, marcá en azul lo que no entendés y preguntale a tu profe. Preguntar no es de tontos, es de vivos."}, {"k": ["gracias", "chau", "adios", "nos vemos", "genial", "buenisimo", "crack"], "a": "¡De nada! Y acordate: poco, todos los días, y sin sufrir."}, {"k": ["chiste", "chistes", "reir", "gracioso"], "a": "¿Por qué el lápiz fue al médico? Porque se quedó sin punta. Ja, ja, ja."}, {"k": ["como estas", "como andas", "como va", "que haces"], "a": "¡Afilado y listo para estudiar! ¿Y vos?"}, {"k": ["juego", "juegos", "jugar", "quiz", "divertir"], "a": "Probá el quiz, el generador de frases locas y el juego de unir. Están en el menú de abajo."}, {"k": ["ayuda", "que puedo preguntar", "que sabes", "que sabes hacer", "ayudame", "ayudar"], "a": "Puedo contarte del Pomodoro, el subrayado, los mapas conceptuales, las mnemotecnias, cómo usar la IA y cómo prepararte para una prueba."}];
+  KB = KB.concat(KB_EXTRA);
+  var CHIPS = ["¿Qué es el Pomodoro?", "¿Cómo subrayo bien?", "¿Qué es un mapa conceptual?", "Dame una mnemotecnia", "¿Cómo uso la IA para estudiar?", "Tengo una prueba, ¿qué hago?", "¿Sos una IA?", "¿Para qué sirve esta app?", "Dame un secreto", "Contame un chiste", "¿Quién te hizo?"];
+  var FALLBACK = 'Uy, esa no me la sé. Probá preguntarme por Pomodoro, subrayado, mapas, mnemotecnias, la IA o cómo prepararte para una prueba.';
+  function norm(s){
+    return ' ' + s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9ñ ]+/g,' ').replace(/\s+/g,' ').trim() + ' ';
+  }
+  function answerFor(q){
+    var n = norm(q), best = null, bs = 0;
+    KB.forEach(function(e){
+      var s = 0;
+      e.k.forEach(function(key){ if (n.indexOf(' ' + key) >= 0) s += key.length * key.split(' ').length; });
+      if (s > bs) { bs = s; best = e; }
+    });
+    return best ? best.a : FALLBACK;
+  }
+  var V = { voice: null, talking: false, timer: null, mouthT: null, last: '' };
+  var MOUTH = {
+    shut: { d: 'M58 107 Q70 123 82 107', fill: 'none' },
+    a:    { d: 'M58 105 Q70 130 82 105 Z', fill: '#fff' },
+    o:    { d: 'M63 106 Q70 124 77 106 Z', fill: '#fff' },
+    m:    { d: 'M60 109 Q70 113 80 109', fill: 'none' }
+  };
+  function setMouth(k){
+    var m = $('#mouth'); if (!m) return;
+    m.setAttribute('d', MOUTH[k].d); m.setAttribute('fill', MOUTH[k].fill);
+  }
+  function talk(on){
+    V.talking = on;
+    $('#lwrap').classList.toggle('talking', on);
+    if (V.mouthT) { clearInterval(V.mouthT); V.mouthT = null; }
+    if (on) {
+      var seq = ['a','o','m','a','shut','o','a','m'], i = 0;
+      V.mouthT = setInterval(function(){ setMouth(seq[(i++ + Math.floor(Math.random()*3)) % seq.length]); }, 120);
+    } else { setMouth('shut'); }
+  }
+  function pickVoice(){
+    if (!('speechSynthesis' in window)) return;
+    var vs = speechSynthesis.getVoices() || [], pref = ['es-AR','es-419','es-US','es-MX','es-ES'];
+    for (var i = 0; i < pref.length; i++) {
+      var f = vs.filter(function(v){ return v.lang && v.lang.replace('_','-').toLowerCase() === pref[i].toLowerCase(); })[0];
+      if (f) { V.voice = f; return; }
+    }
+    V.voice = vs.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf('es') === 0; })[0] || null;
+  }
+  if ('speechSynthesis' in window) { pickVoice(); try { speechSynthesis.onvoiceschanged = pickVoice; } catch(e){} }
+  function say(text){
+    V.last = text; $('#lbubble').textContent = text;
+    if (V.timer) { clearTimeout(V.timer); V.timer = null; }
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e){}
+    var fallbackMs = Math.max(1600, text.length * 58);
+    if ($('#voz').checked && 'speechSynthesis' in window && V.voice) {
+      setTimeout(function(){
+        try {
+          var u = new SpeechSynthesisUtterance(text);
+          u.voice = V.voice; u.lang = V.voice.lang; u.rate = 1.02; u.pitch = 1.25;
+          u.onstart = function(){ talk(true); };
+          u.onend = function(){ talk(false); };
+          u.onerror = function(){ talk(false); };
+          speechSynthesis.speak(u);
+          // por si el navegador nunca avisa el fin
+          V.timer = setTimeout(function(){ talk(false); }, fallbackMs * 2.5);
+        } catch(e){ talk(true); V.timer = setTimeout(function(){ talk(false); }, fallbackMs); }
+      }, 60);
+    } else {
+      talk(true); V.timer = setTimeout(function(){ talk(false); }, fallbackMs);
+    }
+  }
+  function ask(q){
+    q = (q || '').trim(); if (!q) return;
+    unlock('lucho'); say(answerFor(q));
+  }
+  $('#askForm').addEventListener('submit', function(e){ e.preventDefault(); var i = $('#askIn'); ask(i.value); i.value = ''; });
+  $('#chips').innerHTML = CHIPS.map(function(c){ return '<button class="chipq" type="button">' + c + '</button>'; }).join('');
+  $('#chips').addEventListener('click', function(e){ var b = e.target.closest('.chipq'); if (b) ask(b.textContent); });
+  $('#repeat').addEventListener('click', function(){ if (V.last) say(V.last); });
+  $('#voz').addEventListener('change', function(){ if (!this.checked) { try { speechSynthesis.cancel(); } catch(e){} talk(false); } });
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) { try { speechSynthesis.cancel(); } catch(e){} talk(false); } });
+
+  /* ---------- subrayador ---------- */
+  var TXT = [
+    'Los {volcanes} son {aberturas} en la {corteza} terrestre por donde sale el {magma}. Cuando el magma llega a la superficie se llama {lava}. Hay volcanes {activos}, que pueden hacer erupción, y volcanes {extintos}, que ya no lo hacen.',
+    'Las {abejas} viven en {colmenas}. En cada colmena hay una sola {reina}, que pone los huevos. Las {obreras} limpian, cuidan a las crías y juntan {polen}. Con el {néctar} de las flores fabrican {miel}.',
+    'El método {Pomodoro} divide el estudio en bloques de {25} {minutos}. Después de cada bloque hay una {pausa} de 5 minutos. Cada {cuatro} bloques se hace una {pausa} {larga}.'
+  ];
+  var SB = { i: 0, toks: [], sel: {}, checked: false };
+  function sDraw(){
+    SB.sel = {}; SB.checked = false;
+    SB.toks = TXT[SB.i].split(/\s+/).map(function(w){ return { key: w.indexOf('{') >= 0, t: w.replace(/[{}]/g, '') }; });
+    $('#sText').innerHTML = SB.toks.map(function(k, i){ return '<button type="button" class="tok" data-i="' + i + '" aria-pressed="false">' + k.t + '</button>'; }).join(' ');
+    $('#sMsg').textContent = 'Tocá las palabras para subrayarlas.';
+  }
+  $('#sText').addEventListener('click', function(e){
+    var b = e.target.closest('.tok'); if (!b || SB.checked) return;
+    var i = b.dataset.i; if (SB.sel[i]) { delete SB.sel[i]; b.classList.remove('sel'); b.setAttribute('aria-pressed','false'); }
+    else { SB.sel[i] = 1; b.classList.add('sel'); b.setAttribute('aria-pressed','true'); }
+  });
+  $('#sCheck').addEventListener('click', function(){
+    if (SB.checked) return;
+    var n = Object.keys(SB.sel).length, K = 0, H = 0, E = 0;
+    if (!n) { $('#sMsg').textContent = 'Primero tocá algunas palabras clave.'; return; }
+    SB.checked = true;
+    $$('.tok').forEach(function(b){
+      var i = b.dataset.i, key = SB.toks[i].key, sel = !!SB.sel[i];
+      b.classList.remove('sel');
+      if (key) K++;
+      if (key && sel) { H++; b.classList.add('hit'); }
+      else if (key && !sel) b.classList.add('miss');
+      else if (!key && sel) { E++; b.classList.add('extra'); }
+    });
+    var M = K - H, msg;
+    if (n > SB.toks.length / 2) msg = 'Subrayaste más de la mitad del texto: ¡te pasaste! Si pintás todo, no marcás nada.';
+    else if (M === 0 && E === 0) { msg = '¡Perfecto! Marcaste justo las palabras clave.'; unlock('subrayador'); }
+    else if (M === 0) msg = 'Encontraste todas las palabras clave, pero marcaste ' + E + ' de más (tachadas).';
+    else msg = 'Encontraste ' + H + ' de ' + K + ' palabras clave' + (E ? ' y marcaste ' + E + ' de más (tachadas)' : '') + '. En verde lo que acertaste, y con borde celeste lo que faltó.';
+    $('#sMsg').textContent = msg;
+  });
+  $('#sReset').addEventListener('click', sDraw);
+  $('#sNext').addEventListener('click', function(){ SB.i = (SB.i + 1) % TXT.length; sDraw(); });
+  sDraw();
+
+  /* ---------- plan de prueba ---------- */
+  var PL = [
+    { d: 5, t: 'Juntá todo', x: 'Material, carpeta y lista de temas que entran en la prueba.' },
+    { d: 4, t: 'Subrayá y preguntá', x: 'Marcá lo importante. Lo que no entendés, se lo preguntás al profe.' },
+    { d: 3, t: 'Armá mapas o cuadros', x: 'Uno por cada tema grande.' },
+    { d: 2, t: 'Trucos y práctica', x: 'Mnemotecnias para lo que cuesta. Pedile a la IA que te tome preguntas.' },
+    { d: 1, t: 'Repaso liviano', x: '1 o 2 pomodoros con tus mapas. Nada nuevo. Dormir bien vale más que estudiar de madrugada.' },
+    { d: 0, t: '¡A rendir!', x: 'Desayunás, repasás 10 minutos y leés toda la prueba antes de empezar.' }
+  ];
+  function pad(n){ return String(n).padStart(2, '0'); }
+  function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function parseYmd(v){ var p = v.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function addDays(d, n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function fmtD(d){ return d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'numeric' }); }
+  (function(){ var t = new Date(); var today = new Date(t.getFullYear(), t.getMonth(), t.getDate()); $('#pDate').value = ymd(addDays(today, 6)); $('#pDate').min = ymd(today); })();
+  $('#pGo').addEventListener('click', function(){
+    var out = $('#pOut'), v = $('#pDate').value, mat = $('#pMat').value.trim() || 'mi prueba';
+    if (!v) { out.innerHTML = '<p class="card">Elegí la fecha de la prueba.</p>'; return; }
+    var t = new Date(), today = new Date(t.getFullYear(), t.getMonth(), t.getDate()), exam = parseYmd(v);
+    var left = Math.round((exam - today) / 86400000);
+    var safe = mat.replace(/</g, '&lt;');
+    if (left < 0) { out.innerHTML = '<p class="card">Esa fecha ya pasó. Elegí otra.</p>'; return; }
+    var html = '<h3 style="margin-bottom:12px">Plan para ' + safe + '</h3>';
+    if (left > 5) html += '<p class="card hint" style="margin-bottom:12px">Tenés tiempo. Empezá el plan el <b>' + fmtD(addDays(exam, -5)) + '</b>. Hasta entonces, un pomodoro por día repasando lo que ya viste.</p>';
+    else if (left < 5 && left > 0) html += '<p class="card hint" style="margin-bottom:12px">Te quedan ' + left + (left === 1 ? ' día' : ' días') + '. Empezá hoy por el primer paso de la lista.</p>';
+    PL.filter(function(p){ return p.d <= left; }).forEach(function(p){
+      var date = addDays(exam, -p.d), isToday = ymd(date) === ymd(today);
+      html += '<div class="card pcard"><div class="pday' + (isToday ? ' hoy' : '') + '">' + (isToday ? 'HOY' : fmtD(date)) + '</div><div><b>' + p.t + '</b><p>' + p.x + '</p></div></div>';
+    });
+    out.innerHTML = html; unlock('plan');
+  });
+
+  /* ---------- crucigrama ---------- */
+  var CR = {"rows": 11, "cols": 10, "cells": [[null, "R", "I", "M", "A", null, null, null, null, null], [null, null, null, "A", null, null, null, null, null, null], [null, null, null, "P", null, "M", null, null, "S", null], ["T", "O", "M", "A", "T", "E", null, null, "U", null], ["I", null, null, null, null, "M", null, null, "B", null], ["E", null, "P", "O", "M", "O", "D", "O", "R", "O"], ["M", null, null, null, null, "R", null, null, "A", null], ["P", null, "I", null, null, "I", null, null, "Y", null], ["O", null, "D", null, "P", "A", "U", "S", "A", null], [null, null, "E", null, null, null, null, null, "D", null], [null, null, "A", "T", "E", "N", "C", "I", "O", "N"]], "words": [{"n": 1, "dir": "A", "r": 0, "c": 1, "len": 4, "ans": "RIMA", "clue": "Palabras que suenan igual al final"}, {"n": 2, "dir": "D", "r": 0, "c": 3, "len": 4, "ans": "MAPA", "clue": "___ conceptual: cajas y flechas"}, {"n": 3, "dir": "D", "r": 2, "c": 5, "len": 7, "ans": "MEMORIA", "clue": "Los trucos mnemotécnicos la entrenan"}, {"n": 4, "dir": "D", "r": 2, "c": 8, "len": 9, "ans": "SUBRAYADO", "clue": "Marcar lo importante de un texto"}, {"n": 5, "dir": "A", "r": 3, "c": 0, "len": 6, "ans": "TOMATE", "clue": "Fruta roja que dio nombre al método"}, {"n": 5, "dir": "D", "r": 3, "c": 0, "len": 6, "ans": "TIEMPO", "clue": "Se organiza con una agenda"}, {"n": 6, "dir": "A", "r": 5, "c": 2, "len": 8, "ans": "POMODORO", "clue": "Método del tomate: 25 minutos de estudio y 5 de pausa"}, {"n": 7, "dir": "D", "r": 7, "c": 2, "len": 4, "ans": "IDEA", "clue": "La ___ principal es lo más importante"}, {"n": 8, "dir": "A", "r": 8, "c": 4, "len": 5, "ans": "PAUSA", "clue": "Descanso entre pomodoros"}, {"n": 9, "dir": "A", "r": 10, "c": 2, "len": 8, "ans": "ATENCION", "clue": "Hay que prestarla en clase"}]};
+  var CW = { cur: null, dir: 'A' };
+  function cNorm(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-ZÑ]/g, ''); }
+  function cInp(r, c){ return document.getElementById('cr-' + r + '-' + c); }
+  function wordAt(r, c, dir){
+    return CR.words.filter(function(w){
+      if (w.dir !== dir) return false;
+      return dir === 'A' ? (w.r === r && c >= w.c && c < w.c + w.len) : (w.c === c && r >= w.r && r < w.r + w.len);
+    })[0] || null;
+  }
+  function cCells(w){ var a = []; for (var i = 0; i < w.len; i++) a.push(w.dir === 'A' ? [w.r, w.c + i] : [w.r + i, w.c]); return a; }
+  function cMark(w){
+    $$('.cc input').forEach(function(x){ x.classList.remove('cur'); });
+    $$('.clue').forEach(function(x){ x.classList.remove('cur'); });
+    if (!w) return;
+    cCells(w).forEach(function(p){ var i = cInp(p[0], p[1]); if (i) i.classList.add('cur'); });
+    var cl = document.getElementById('cl-' + w.n + w.dir); if (cl) cl.classList.add('cur');
+  }
+  function cMove(r, c, dr, dc){
+    var rr = r + dr, cc = c + dc;
+    while (rr >= 0 && cc >= 0 && rr < CR.rows && cc < CR.cols) { if (CR.cells[rr][cc]) { var i = cInp(rr, cc); if (i) { i.focus(); return true; } } rr += dr; cc += dc; }
+    return false;
+  }
+  (function buildC(){
+    var g = $('#cGrid'); g.style.gridTemplateColumns = 'repeat(' + CR.cols + ',1fr)';
+    var nums = {}; CR.words.forEach(function(w){ nums[w.r + ',' + w.c] = w.n; });
+    var h = '';
+    for (var r = 0; r < CR.rows; r++) for (var c = 0; c < CR.cols; c++) {
+      if (!CR.cells[r][c]) { h += '<div class="cc blk"></div>'; continue; }
+      var n = nums[r + ',' + c];
+      h += '<div class="cc">' + (n ? '<i>' + n + '</i>' : '') + '<input id="cr-' + r + '-' + c + '" data-r="' + r + '" data-c="' + c + '" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Fila ' + (r+1) + ', columna ' + (c+1) + '"></div>';
+    }
+    g.innerHTML = h;
+    var ac = '', dn = '';
+    CR.words.forEach(function(w){
+      var b = '<button type="button" class="clue" id="cl-' + w.n + w.dir + '" data-n="' + w.n + '" data-d="' + w.dir + '"><b>' + w.n + '.</b>' + w.clue + ' <span class="hint">(' + w.len + ' letras)</span></button>';
+      if (w.dir === 'A') ac += b; else dn += b;
+    });
+    $('#cAcross').innerHTML = ac; $('#cDown').innerHTML = dn;
+  })();
+  $('#cGrid').addEventListener('focusin', function(e){
+    var el = e.target; if (el.tagName !== 'INPUT') return;
+    var r = +el.dataset.r, c = +el.dataset.c, same = CW.cur && CW.cur[0] === r && CW.cur[1] === c;
+    var wa = wordAt(r, c, 'A'), wd = wordAt(r, c, 'D');
+    if (same && wa && wd) CW.dir = CW.dir === 'A' ? 'D' : 'A';
+    else if (!(CW.dir === 'A' ? wa : wd)) CW.dir = wa ? 'A' : 'D';
+    CW.cur = [r, c]; cMark(wordAt(r, c, CW.dir));
+  });
+  $('#cGrid').addEventListener('input', function(e){
+    var el = e.target; if (el.tagName !== 'INPUT') return;
+    var v = cNorm(el.value); el.value = v.slice(-1); el.classList.remove('ok', 'bad');
+    if (v) cMove(+el.dataset.r, +el.dataset.c, CW.dir === 'A' ? 0 : 1, CW.dir === 'A' ? 1 : 0);
+  });
+  $('#cGrid').addEventListener('keydown', function(e){
+    var el = e.target; if (el.tagName !== 'INPUT') return;
+    var r = +el.dataset.r, c = +el.dataset.c;
+    if (e.key === 'Backspace' && !el.value) { cMove(r, c, CW.dir === 'A' ? 0 : -1, CW.dir === 'A' ? -1 : 0); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); cMove(r, c, 0, 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); cMove(r, c, 0, -1); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); cMove(r, c, 1, 0); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); cMove(r, c, -1, 0); }
+  });
+  function cClue(e){
+    var b = e.target.closest('.clue'); if (!b) return;
+    var w = CR.words.filter(function(x){ return x.n === +b.dataset.n && x.dir === b.dataset.d; })[0]; if (!w) return;
+    CW.dir = w.dir; CW.cur = [w.r, w.c]; var i = cInp(w.r, w.c); if (i) i.focus(); cMark(w);
+    $('#cGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  $('#cAcross').addEventListener('click', cClue); $('#cDown').addEventListener('click', cClue);
+  function cAll(fn){ for (var r = 0; r < CR.rows; r++) for (var c = 0; c < CR.cols; c++) if (CR.cells[r][c]) fn(r, c, cInp(r, c), CR.cells[r][c]); }
+  $('#cCheck').addEventListener('click', function(){
+    var bad = 0, empty = 0, msg = $('#cMsg');
+    cAll(function(r, c, el, ans){
+      el.classList.remove('ok', 'bad'); var v = cNorm(el.value);
+      if (!v) { empty++; return; }
+      if (v === ans) el.classList.add('ok'); else { el.classList.add('bad'); bad++; }
+    });
+    msg.style.display = 'block';
+    if (!bad && !empty) { msg.innerHTML = '<b>¡Crucigrama completo!</b> Muy bien.'; unlock('cruci'); }
+    else msg.textContent = (bad ? bad + ' casillas incorrectas (en rojo). ' : '') + (empty ? 'Faltan ' + empty + ' casillas.' : '');
+  });
+  $('#cShow').addEventListener('click', function(){ cAll(function(r, c, el, ans){ el.value = ans; el.classList.remove('bad'); el.classList.add('ok'); }); });
+  $('#cClear').addEventListener('click', function(){ cAll(function(r, c, el){ el.value = ''; el.classList.remove('ok', 'bad'); }); $('#cMsg').style.display = 'none'; });
+
+  /* ---------- sopa de letras ---------- */
+  var SP = {"grid": ["CPOMODOROAFP", "NTIEPAUSATOT", "IOMNHESCMEFE", "HHARUFUIENJA", "EOTMVUBLMCES", "MVBPTNRNOINN", "TADRNBARROGC", "RGPPFDYIINLV", "UBDAAUAMAETD", "CLASEMDAVACG", "OVNEIMOVMRDD", "RPRIDEARJCED"], "words": ["ATENCION", "CLASE", "IDEA", "MAPA", "MEMORIA", "PAUSA", "POMODORO", "RIMA", "SUBRAYADO", "TRUCO"]};
+  var SQ = { start: null, found: {} };
+  function sRender(){
+    SQ = { start: null, found: {} };
+    var h = '';
+    SP.grid.forEach(function(row, r){ row.split('').forEach(function(ch, c){ h += '<button type="button" class="sc" data-r="' + r + '" data-c="' + c + '" aria-label="Fila ' + (r+1) + ', columna ' + (c+1) + ': ' + ch + '">' + ch + '</button>'; }); });
+    $('#sGrid').innerHTML = h;
+    $('#sWords').innerHTML = SP.words.map(function(w){ return '<span class="wd" data-w="' + w + '">' + w + '</span>'; }).join('');
+    $('#sWin').style.display = 'none';
+  }
+  function sCell(r, c){ return $('#sGrid .sc[data-r="' + r + '"][data-c="' + c + '"]'); }
+  $('#sGrid').addEventListener('click', function(e){
+    var b = e.target.closest('.sc'); if (!b) return;
+    var r = +b.dataset.r, c = +b.dataset.c;
+    if (!SQ.start) { SQ.start = [r, c]; b.classList.add('start'); return; }
+    var sr = SQ.start[0], sc = SQ.start[1];
+    $$('.sc.start').forEach(function(x){ x.classList.remove('start'); });
+    if (sr === r && sc === c) { SQ.start = null; return; }
+    var dr = r - sr, dc = c - sc;
+    if (!(dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc))) { SQ.start = [r, c]; b.classList.add('start'); return; }
+    var n = Math.max(Math.abs(dr), Math.abs(dc)) + 1, stepR = Math.sign(dr), stepC = Math.sign(dc), s = '', cells = [];
+    for (var i = 0; i < n; i++) { var rr = sr + stepR * i, cc = sc + stepC * i; s += SP.grid[rr][cc]; cells.push([rr, cc]); }
+    var rev = s.split('').reverse().join(''), word = SP.words.filter(function(w){ return (w === s || w === rev) && !SQ.found[w]; })[0];
+    SQ.start = null;
+    if (word) {
+      SQ.found[word] = 1; cells.forEach(function(p){ sCell(p[0], p[1]).classList.add('found'); });
+      var chip = $('#sWords .wd[data-w="' + word + '"]'); if (chip) chip.classList.add('done');
+      if (Object.keys(SQ.found).length === SP.words.length) { var w = $('#sWin'); w.style.display = 'block'; w.innerHTML = '<b>¡Encontraste las 10 palabras!</b>'; unlock('sopa'); }
+    } else { b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad'); }
+  });
+  $('#sRe').addEventListener('click', sRender);
+  sRender();
+
+  show(location.hash.slice(1) || 'inicio');
+})();
+</script>
+</body>
+</html>
